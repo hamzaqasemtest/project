@@ -1,7 +1,7 @@
 import uuid
 from langchain_openai import AzureChatOpenAI
 from config import AZURE_CHATBOT_API_KEY, AZURE_CHATBOT_ENDPOINT, AZURE_CHATBOT_OPENAI_VERSION
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from fastapi import Depends, HTTPException
 from passlib.context import CryptContext
 from typing import Annotated
@@ -17,7 +17,7 @@ oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 def create_access_token(username: str, expires_delta: timedelta):
     encode = {"sub": username}
-    expires = datetime.utcnow() + expires_delta
+    expires = datetime.now(timezone.utc) + expires_delta
     encode.update({"exp": expires})
     return jwt.encode(encode, SECRET_KEY, ALGORITHM)
 
