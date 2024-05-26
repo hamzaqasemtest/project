@@ -8,4 +8,3 @@ class Chat(MongoSchema):
     username: str
     title: str
     session: dict
-    #
