@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user   # MongoDB root username
+      MONGO_INITDB_ROOT_PASSWORD: password   # MongoDB root password
+      MONGO_INITDB_DATABASE: project   # Primary database name
+    ports:
+      - "27017:27017"
+    volumes:
+      - ~/mongodb-data:/data/db  # Maps local ~/mongodb-data to /data/db in the container
+    command:
+      - mongod
+      - --auth
+      - --wiredTigerCacheSizeGB=1
+      - --bind_ip_all
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    depends_on:
+      - mongodb
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: user
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: user    # Optional: Mongo Express web UI username
+      ME_CONFIG_BASICAUTH_PASSWORD: password    # Optional: Mongo Express web UI password
+    ports:
+      - "8081:8081"
