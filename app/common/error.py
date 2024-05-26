@@ -1,38 +1,22 @@
+from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 
+class CustomException(HTTPException):
+    def __init__(self, status_code: int, detail: str):
+        super().__init__(status_code=status_code, detail=detail)
 
-class BaseErrResp(Exception):
-    def __init__(self, status: int, title: str, details: list) -> None:
-        self.__status = status
-        self.__title = title
-        self.__detail = details
+class ItemNotFoundException(CustomException):
+    def __init__(self, item_id: int):
+        super().__init__(status_code=404, detail=f"Item with ID {item_id} not found.")
 
-    def gen_err_resp(self) -> JSONResponse:
-        return JSONResponse(
-            status_code=self.__status,
-            content={
-                "type": "about:blank",
-                'title': self.__title,
-                'status': self.__status,
-                'detail': self.__detail
-            }
-        )
+def custom_exception_handler(request: Request, exc: CustomException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": exc.detail},
+    )
 
-
-class BadRequest(BaseErrResp):
-    def __init__(self, details: list):
-        super(BadRequest, self).__init__(400, 'Bad Request', details)
-
-
-class InternalError(BaseErrResp):
-    def __init__(self, details: list):
-        super(InternalError, self).__init__(500, 'Internal Error', details)
-
-
-class UnprocessableError(BaseErrResp):
-    def __init__(self, details: list):
-        super(UnprocessableError, self).__init__(
-            422,
-            'Unprocessable Entity',
-            details
-        )
+def generic_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"message": "An unexpected error occurred."},
+    )

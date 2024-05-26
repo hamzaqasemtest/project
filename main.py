@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import db_manager
 from contextlib import asynccontextmanager
 from app.routes import RoutesIncluder
+from app.common.error import custom_exception_handler, generic_exception_handler, CustomException
 
 # @asynccontextmanager
 # async def lifespan(app: FastAPI):
@@ -40,57 +41,36 @@ async def root():
 async def healthz():
     return {"status": "healthy"}
 
+app.add_exception_handler(CustomException, custom_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
+
 app.include_router(RoutesIncluder.get_routes())
 
 
-# @app.exception_handler(BadRequest)
-# async def bad_request_handler(req: Request, exc: BadRequest) -> JSONResponse:
-#     return exc.gen_err_resp()
-
-
-# @app.exception_handler(RequestValidationError)
-# async def invalid_req_handler(
-#         req: Request,
-#         exc: RequestValidationError
-# ) -> JSONResponse:
-#     return JSONResponse(
-#         status_code=400,
-#         content={
-#             "type": "about:blank",
-#             'title': 'Bad Request',
-#             'status': 400,
-#             'detail': [str(exc)]
-#         }
-#     )
-
-
-# @app.exception_handler(UnprocessableError)
-# async def unprocessable_error_handler(
-#         req: Request,
-#         exc: UnprocessableError
-# ) -> JSONResponse:
-#     return exc.gen_err_resp()
 
 
 
-# from app.database import get_database
-# from fastapi import APIRouter, Depends
-# from app.services.database import create_user , get_user , get_user_by_username
-# router = APIRouter()
 
 
-# @router.post("/test")
-# async def test(db: AsyncIOMotorClient = Depends(get_database)):
-#     return await get_user_by_username(db, "koko")
 
-# @router.get("/test-non-blocking")
-# async def test():
-#     return "non-blocking"
+from app.database import get_database
+from fastapi import APIRouter, Depends
+from app.services.database import create_user , get_user , get_user_by_username
+router = APIRouter()
+from motor.motor_asyncio import AsyncIOMotorClient
+
+@router.post("/test")
+async def test(db: AsyncIOMotorClient = Depends(get_database)):
+    return get_user_by_username(db, "koko")
+
+@router.get("/test-non-blocking")
+async def test():
+    return "non-blocking"
 
 
-# app.include_router(
-#     router,
-#     prefix='/api'
-# )
+app.include_router(
+    router,
+    prefix='/api'
+)
 
 
