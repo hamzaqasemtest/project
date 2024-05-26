@@ -1,9 +1,6 @@
 import hashlib
 
-from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
-from starlette import status
-
 from app.services.database import create_user, get_user_by_username
 from app.database.schemas.user import User
 

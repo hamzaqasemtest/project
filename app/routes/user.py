@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 from starlette import status
 from app.common.utils import create_access_token
-from app.database.dependencies import get_database
+from app.database import get_database
 from app.routes.schemas.user import CreateUserReq, LoginRequest
 from app.services.database import get_user_by_username
 from app.services.authentication import AuthService

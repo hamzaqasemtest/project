@@ -49,5 +49,3 @@ def get_llm():
 
 def generate_uuid_str():
     return str(uuid.uuid4())
-
-

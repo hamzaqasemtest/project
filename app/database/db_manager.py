@@ -16,6 +16,7 @@ class DatabaseManager:
                 minPoolSize=MIN_CONNECTIONS_COUNT,
                 uuidRepresentation="standard",
             )
+        print("Connected to MongoDB")
 
     async def get_db(self) -> AsyncIOMotorDatabase:
         if self.db_client is None:
@@ -26,3 +27,5 @@ class DatabaseManager:
         if self.db_client is not None:
             self.db_client.close()
             self.db_client = None
+
+        print("disconnected from MongoDB")
