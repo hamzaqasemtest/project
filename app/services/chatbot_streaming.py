@@ -7,13 +7,14 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
-
 from app.prompts.chatbot_streaming import system_promt
+from app.database.schemas.chat import Chat
+from langchain_core.messages import messages_to_dict
 
 
 class Chatbot:
 
-    def __init__(self, session_id: str, store=None):
+    def __init__(self, chat: Chat):
 
         self.callback_handler = AsyncIteratorCallbackHandler()
 
@@ -38,10 +39,11 @@ class Chatbot:
 
         self.runnable = self.prompt | self.llm
 
-        self.session_id = session_id
+        # self.store = chat.memory
+        self.store = {}
 
-        if store is None:
-            self.store = {}
+        # self.chat_session_id = chat.id
+        self.chat_session_id = "HAMZA"
 
         self.with_message_history = RunnableWithMessageHistory(
             self.runnable,
@@ -53,6 +55,7 @@ class Chatbot:
     def get_session_history(self, session_id: str) -> BaseChatMessageHistory:
         if session_id not in self.store:
             self.store[session_id] = ChatMessageHistory()
+            print(self.store)
         return self.store[session_id]
 
     async def chat_streaming(self, content: str) -> AsyncIterable[str]:
@@ -60,7 +63,7 @@ class Chatbot:
         task = asyncio.create_task(
             self.with_message_history.ainvoke(
                 {"input": content},
-                config={"configurable": {"session_id": "hamza"}},
+                config={"configurable": {"session_id": self.chat_session_id}},
             )
         )
 
@@ -73,5 +76,3 @@ class Chatbot:
         finally:
             self.callback_handler.done.set()
         await task
-
-
