@@ -1,14 +1,15 @@
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-from config import MONGO_DB_NAME,  MONGO_URL,  MONGO_USER,  MONGO_PASSWORD,  MAX_CONNECTIONS_COUNT,  MIN_CONNECTIONS_COUNT
+from config import MONGO_DB_NAME, MONGO_URL, MONGO_USER, MONGO_PASSWORD, MAX_CONNECTIONS_COUNT, MIN_CONNECTIONS_COUNT
+import logging
+
 
 class DatabaseManager:
     def __init__(self):
         self.db_client = None
 
     async def connect_and_init_db(self):
-    
-        if self.db_client is None:
 
+        if self.db_client is None:
             self.db_client = AsyncIOMotorClient(
                 MONGO_URL,
                 username=MONGO_USER,
@@ -18,7 +19,7 @@ class DatabaseManager:
                 uuidRepresentation="standard",
             )
             await self.db_client.admin.command('ping')
-            print("Connected to MongoDB")
+            logging.info("connected to MongoDB")
 
     async def get_db(self) -> AsyncIOMotorDatabase:
         if self.db_client is None:
@@ -30,4 +31,4 @@ class DatabaseManager:
             self.db_client.close()
             self.db_client = None
 
-        print("disconnected from MongoDB")
+        logging.info("disconnected from MongoDB")

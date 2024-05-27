@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, status
 from motor.motor_asyncio import AsyncIOMotorClient
-from starlette import status
+from datetime import timedelta
 from app.common.utils import create_access_token
 from app.database import get_database
 from app.routes.schemas.user import CreateUserReq, LoginRequest
 from app.services.database import get_user_by_username
 from app.services.authentication import AuthService
-from datetime import timedelta
-
+from app.common.error_handling import UserAlreadyExistsException, RegistrationFailedException, \
+    InvalidCredentialsException
 
 router = APIRouter()
 
@@ -19,10 +19,7 @@ async def create_user(user_data: CreateUserReq, db: AsyncIOMotorClient = Depends
     existed_user = await get_user_by_username(db, user_data.username)
 
     if existed_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User already exists.",
-        )
+        raise UserAlreadyExistsException()
 
     user = await auth_service.register(db, user_data.username, user_data.password)
     if user:
@@ -31,10 +28,7 @@ async def create_user(user_data: CreateUserReq, db: AsyncIOMotorClient = Depends
         )
         return {"message": "registered successfully", "token": token}
     else:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="an error has occurred.",
-        )
+        raise RegistrationFailedException()
 
 
 @router.post("/login")
@@ -47,7 +41,4 @@ async def get_user(login_request: LoginRequest, db: AsyncIOMotorClient = Depends
         )
         return {"message": "Logged in successfully", "token": token}
     else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Login failed due to invalid data.",
-        )
+        raise InvalidCredentialsException()

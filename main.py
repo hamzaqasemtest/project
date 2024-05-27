@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import db_manager
-from contextlib import asynccontextmanager
 from app.routes import RoutesIncluder
-from app.common.error import custom_exception_handler, generic_exception_handler, CustomException
+from app.common.error_handling import custom_exception_handler, generic_exception_handler, CustomException
+from app.logger import setup_logging
+from contextlib import asynccontextmanager
 
 # @asynccontextmanager
 # async def lifespan(app: FastAPI):
@@ -23,6 +24,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+setup_logging()
 
 @app.on_event("startup")
 async def startup_event():
