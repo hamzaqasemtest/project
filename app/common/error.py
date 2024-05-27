@@ -12,17 +12,15 @@ class ItemNotFoundException(CustomException):
     def __init__(self, item_id: int):
         super().__init__(status_code=404, detail=f"Item with ID {item_id} not found.")
 
-
 async def custom_exception_handler(request: Request, exc: CustomException):
-    logging.error(f"CustomException: {exc.detail} - Path: {request.url.path}")
+    logging.error(f"CustomException: {type(exc).__name__} - Path: {request.url.path} message: {str(exc)}")
     return JSONResponse(
         status_code=exc.status_code,
         content={"message": exc.detail, "path": request.url.path},
     )
 
-
 async def generic_exception_handler(request: Request, exc: Exception):
-    logging.error(f"Unhandled Exception: {str(exc)} - Path: {request.url.path}")
+    logging.error(f"Unhandled Exception type: {type(exc).__name__} - Path: {request.url.path} message: {str(exc)}")
     return JSONResponse(
         status_code=500,
         content={"message": "An unexpected error occurred.", "path": request.url.path},

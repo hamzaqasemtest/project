@@ -13,7 +13,6 @@ async def get_user(db_connection: AsyncIOMotorClient, user_id: str) -> Optional[
     document = await db_connection[MONGO_DB_NAME][User.__name__].find_one({"_id": user_id})
     return User.from_mongo(document) if document else None
 
-
 async def get_user_by_username(db_connection: AsyncIOMotorClient, username: str) -> Optional[User]:
     document = await db_connection[MONGO_DB_NAME][User.__name__].find_one({"username": username})
     if document:
